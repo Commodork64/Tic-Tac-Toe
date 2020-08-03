@@ -1,0 +1,9 @@
+{
+	"authors": [
+		"Calin Clement Dermott"
+	],
+	"copyright": "Copyright © 2020, Calin Clement Dermott",
+	"description": "A terminal based game of Tic Tac Toe, written in D",
+	"license": "proprietary",
+	"name": "tic-tac-toe"
+}

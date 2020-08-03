@@ -11,9 +11,9 @@ import utility;
  *                                                                             *
  *                           Programmer : Calin Clement Dermott                *
  *                                                                             *
- *                           Start Date : 20th July 2020                       *
+ *                           Start Date : 31st July 2020                       *
  *                                                                             *
- *                           Last Update : 20th July 2020                      *
+ *                           Last Update : 1st August 2020                     *
  *                                                                             *
  *-----------------------------------------------------------------------------*
  * Description: Small terminal based game created to help gain familiarity in  *
@@ -31,6 +31,9 @@ int main()
     char[3][3] board = ' ';
 
     writeln("TIC TAC TOE by Calin Clement Dermott, 2020");
+
+    // Attempt to connect to server
+
 
     // Instructions
     writeln("The grid goes left to right, 1-3, 3 times. So choosing the number");
