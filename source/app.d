@@ -7,13 +7,13 @@ import utility;
  *                                                                             *
  *                           Project Name : Tic Tac Toe                        *
  *                                                                             *
- *                           File Name : main.d                                *
+ *                           File Name : app.d                                *
  *                                                                             *
  *                           Programmer : Calin Clement Dermott                *
  *                                                                             *
  *                           Start Date : 31st July 2020                       *
  *                                                                             *
- *                           Last Update : 1st August 2020                     *
+ *                           Last Update : 3rd August 2020                     *
  *                                                                             *
  *-----------------------------------------------------------------------------*
  * Description: Small terminal based game created to help gain familiarity in  *
@@ -51,5 +51,7 @@ int main()
         drawBoard(board);
         goDecider++;
     }
-    return 0;
+    // Will this be reachable or will the game loop back to waiting to connect
+	// to the server?
+	return 0;
 }

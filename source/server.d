@@ -15,7 +15,7 @@ import core.thread;
  *                                                                             *
  *                           Start Date : 2nd August 2020                      *
  *                                                                             *
- *                           Last Update : 2nd August 2020                     *
+ *                           Last Update : 3rd August 2020                     *
  *                                                                             *
  *-----------------------------------------------------------------------------*
  * Description: Small terminal based game created to help gain familiarity in  *
