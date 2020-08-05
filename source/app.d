@@ -29,7 +29,6 @@ int main()
     int goDecider = 0; // keeps track of whose go it is.
     // create the board, and intialise all values to ' '
     char[3][3] board = ' ';
-
     writeln("TIC TAC TOE by Calin Clement Dermott, 2020");
 
     // Attempt to connect to server

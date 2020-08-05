@@ -1,7 +1,7 @@
 module server;
 
 import std.stdio, std.socket, std.parallelism;
-import core.thread;
+import core.thread, core.stdc.errno;
 
 /*******************************************************************************
  ***                           T I C | T A C | T O E                           *
@@ -15,46 +15,73 @@ import core.thread;
  *                                                                             *
  *                           Start Date : 2nd August 2020                      *
  *                                                                             *
- *                           Last Update : 3rd August 2020                     *
+ *                           Last Update : 4th August 2020                     *
  *                                                                             *
  *-----------------------------------------------------------------------------*
  * Description: Small terminal based game created to help gain familiarity in  *
  * Dlang in preperation for larger projects.                                   *
  *                                                                             *
+ * Server functionality added mainly to help gain experience with socket       *
+ * programming in general.                                                     *
+ *                                                                             *
  *----------------------------------------------------------------------------*/
 
 int main() {
 
-    // goal one: transmission of data between client and server.
-
     // setup variables the server requires to function
-    const int port;
-    bool listening = false; // keeps track if listening for traffic or not.
-    int address;
-    auto socket = new Socket();
+    const ushort port = 9000;
+    Address address = new InternetAddress("localhost", port);
 
-    start(listening, port);
+    // creates a socket using INET addresses and UDP protocol.
+    auto udpSocket = new Socket(AddressFamily.INET, SocketType.DGRAM);
+    assert(udpSocket.isAlive); // verifies successful socket creation.
+    udpSocket.bind(address); // Associate a local address with this socket.
+    udpSocket.blocking = false;
+    
+    start(udpSocket);
+    udpSocket.close();
 
     return 0;
 }
 
-void start(ref bool listening, ref const int port) {
-    listening = true;
-    auto listenTask = task!listen(listening, port);
+void start(ref Socket udpSocket) {
+    // We might need to be listening, receiving and sending data simultaneously,
+    // therefore concurrency is needed.
+    auto listenTask = task!listen(udpSocket);
     listenTask.executeInNewThread();
 }
 
-void listen(bool listening, int port) {
-    while(listening) {
-        writeln("Hey baby");
-        break;
+void listen(ref Socket udpSocket) {
+    
+    // populated by recieveFrom function.
+    Address from;
+
+    // all std.socket buffers must have a size bigger than zero to work.
+    char[1024] buffer;
+
+    TRY_AGAIN:
+    auto value = udpSocket.receiveFrom(buffer[], from);
+
+    // Important to check for EINTR on POSIX systems.
+    if(value == Socket.ERROR) {
+        version(Posix) {
+            if(errno == EINTR) goto TRY_AGAIN;
+        }
+        throw new Exception(lastSocketError());    
     }
+    // this line is never reached, if 66-71 is commented, program exits on line
+    // 74. No error given, need to test why.
+    auto data = buffer[0 .. value];
+    writeln("Received: ", data);
 }
 
-void process() { //should send UDP packet
+void process() { // should call send to send UDP datagram packet
+
+    // if we receive data that isn't empty, do something with it and send it
+    // on to the next player.
 
 }
 
-void send(byte[] data) {
-
+void send(char[] data, ref Socket udpSocket) {
+    // do nothing.
 }
