@@ -29,6 +29,7 @@ import core.thread, core.stdc.errno;
 int main() {
 
     // setup variables the server requires to function
+    bool listening = false;
     const ushort port = 9000;
     Address address = new InternetAddress("localhost", port);
 
@@ -37,26 +38,30 @@ int main() {
     assert(udpSocket.isAlive); // verifies successful socket creation.
     udpSocket.bind(address); // Associate a local address with this socket.
     
-    start(udpSocket);
+    start(udpSocket, listening);
     udpSocket.close();
 
     return 0;
 }
 
-void start(ref Socket udpSocket) {
+void start(ref Socket udpSocket, ref bool listening) {
     // We might need to be listening, receiving and sending data simultaneously,
-    // therefore concurrency is needed.
-
-    listen(udpSocket);
-    
-    // listen now operates without crashing but not with concurrency.
-    // I need to test it receives data and prints it, then I'll come back to the
-    // concurrency issue.
-    //auto listenTask = task!listen(udpSocket);
-    //listenTask.executeInNewThread();
+    // therefore concurrency is required.
+    while(true) {
+        if(!listening) {
+            auto listenTask = task!listen(udpSocket, listening);
+            listenTask.executeInNewThread();
+            // waits for the task to complete its operations,
+            // this line stops multiple threads been spun up to listen on the
+            // same socket.
+            immutable taskResult = listenTask.yieldForce();
+        }
+        writeln(listening);
+        listening = false;
+    }
 }
 
-void listen(ref Socket udpSocket) {
+int listen(ref Socket udpSocket, ref bool listening) {
     
     // populated by recieveFrom function.
     Address from;
@@ -84,6 +89,9 @@ void listen(ref Socket udpSocket) {
     value = udpSocket.sendTo(reply[], from);
     if(value == Socket.ERROR) { throw new Exception(lastSocketError()); }
     assert(value == reply.length);
+
+    listening = true;
+    return 0;
 }
 
 void process() { // should call send to send UDP datagram packet
