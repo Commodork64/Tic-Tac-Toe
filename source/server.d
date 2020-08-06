@@ -15,7 +15,7 @@ import core.thread, core.stdc.errno;
  *                                                                             *
  *                           Start Date : 2nd August 2020                      *
  *                                                                             *
- *                           Last Update : 4th August 2020                     *
+ *                           Last Update : 6th August 2020                     *
  *                                                                             *
  *-----------------------------------------------------------------------------*
  * Description: Small terminal based game created to help gain familiarity in  *
@@ -36,7 +36,6 @@ int main() {
     auto udpSocket = new Socket(AddressFamily.INET, SocketType.DGRAM);
     assert(udpSocket.isAlive); // verifies successful socket creation.
     udpSocket.bind(address); // Associate a local address with this socket.
-    udpSocket.blocking = false;
     
     start(udpSocket);
     udpSocket.close();
@@ -47,8 +46,14 @@ int main() {
 void start(ref Socket udpSocket) {
     // We might need to be listening, receiving and sending data simultaneously,
     // therefore concurrency is needed.
-    auto listenTask = task!listen(udpSocket);
-    listenTask.executeInNewThread();
+
+    listen(udpSocket);
+    
+    // listen now operates without crashing but not with concurrency.
+    // I need to test it receives data and prints it, then I'll come back to the
+    // concurrency issue.
+    //auto listenTask = task!listen(udpSocket);
+    //listenTask.executeInNewThread();
 }
 
 void listen(ref Socket udpSocket) {
@@ -67,12 +72,18 @@ void listen(ref Socket udpSocket) {
         version(Posix) {
             if(errno == EINTR) goto TRY_AGAIN;
         }
+        writeln(lastSocketError);
         throw new Exception(lastSocketError());    
     }
     // this line is never reached, if 66-71 is commented, program exits on line
     // 74. No error given, need to test why.
     auto data = buffer[0 .. value];
     writeln("Received: ", data);
+
+    auto reply = "Received packet";
+    value = udpSocket.sendTo(reply[], from);
+    if(value == Socket.ERROR) { throw new Exception(lastSocketError()); }
+    assert(value == reply.length);
 }
 
 void process() { // should call send to send UDP datagram packet
