@@ -13,7 +13,7 @@ import utility;
  *                                                                             *
  *                           Start Date : 31st July 2020                       *
  *                                                                             *
- *                           Last Update : 6th August 2020                     *
+ *                           Last Update : 16th August 2020                    *
  *                                                                             *
  *-----------------------------------------------------------------------------*
  * Description: Small terminal based game created to help gain familiarity in  *
@@ -29,7 +29,6 @@ int main()
     int goDecider = 0; // keeps track of whose go it is.
     // create the board, and intialise all values to ' '
     char[3][3] board = ' ';
-    bool winnerDecided = false;
     writeln("TIC TAC TOE by Calin Clement Dermott, 2020");
 
     // networking setup
@@ -49,7 +48,7 @@ int main()
 
         // Put player input into the board
         updateBoard(board, playerMove, goDecider);
-        updateServer(board, socket);
+        //updateServer(board, socket);
 
         // Receive updated board from server.
 
@@ -57,10 +56,77 @@ int main()
         drawBoard(board);
         goDecider++;
     
-        if(winnerDecided) { break; }
+        if(checkForWinner(board)) {
+            break;
+        }
     }
 
     return 0;
+}
+
+bool checkForWinner(char[3][3]board) {
+    bool returnValue = false;
+
+    for(int i = 0; i < board.length; i++) {
+        returnValue = checkRow(board, i); // always returning true.
+        writeln("bla");
+        if (returnValue == true) {
+            return returnValue;
+        }
+    }
+
+    /* for(int i = 0; i < board.length; i++) {
+        returnValue = checkCol(board, i);
+        if (returnValue == true) {
+            return returnValue;
+        }
+    }
+
+    returnValue = checkTopLeftDiagonal(board);
+    if (returnValue) { return true; }
+
+    returnValue = checkTopRightDiagonal(board); */
+    return returnValue;
+}
+
+bool checkRow(char[3][3]board, int rowNum) {
+    for(int i = 1; i < board.length; i++) {
+        if (board[rowNum][i] != board[rowNum][0]) {
+            // will break on second run as not taking into account charcter.
+            return false;
+        }
+    }
+    writeln("Am I being hit?");
+    return true;
+}
+
+bool checkCol(char[3][3]board, int colNum) {
+    
+    for(int i = 1; i < board.length; i++) {
+        if (board[i][colNum] != board[0][colNum]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool checkTopLeftDiagonal(char[3][3]board) {
+
+    for(int i = 1; i < board.length; i++) {
+        if (board[i][i] != board[0][0]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool checkTopRightDiagonal(char[3][3]board) {
+    for(int i = 1; i < board.length; i--) {
+        if (board[i][i] != board[2][2]) {
+            return false;
+        }
+    }
+    return true;
 }
 
 // I will need to split this out into a seperate file
